@@ -17,6 +17,19 @@ to allow multiplayer with friends for a direct connect option, you can then jour
 to the Galatorg Empire server is much like direct connecting to a friend, but it's a dedicated server.  Other dedicated
 servers can also be setup by anyone.  Servers can setup gates on them to allow players to travel to other servers also.
 
+2013/12/06
+-----
+Finished commenting all the code even though it pained me to comment some of it that I knew was going to be completely
+replaced.  Now that the commenting is done I plan on getting the spritesheet system upgraded to accept multiple spritesheets
+and sprites of different sizes.  Afterwards, I may look into upgrading the color system to include more colors because it
+will currently only let you choose from 216(6*6*6) different colors.  Another potential thing that may be upgraded is the
+number of colors that a tile can use, probably an "EnhancedTile" class that will hold 8 different colors instead of 4.  It
+just means that the color system needs to be rethought a bit.  I really like the ability to easily reuse tiles by using
+different colors though.  While commenting the code I started watching another game programming series that is very similar
+to the one mentioned in the previous update.  This one covers more, is a better pace, and has good explanations too.
+
+http://www.youtube.com/playlist?list=PLlrATfBNZ98eOOCk2fOFg7Qg5yoQfFAdf
+
 
 2013/08/27
 -----
