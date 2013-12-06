@@ -5,15 +5,24 @@ import java.awt.BorderLayout;
 
 import javax.swing.JFrame;
 
+/*****************************************************************************\
+ *                                                                           *
+ * GameLauncher class                                                        *
+ *                                                                           *
+ * Starts up the game as an applet or application.                           *
+ *                                                                           *
+\*****************************************************************************/
+
 @SuppressWarnings("serial")
-public class GameLauncher extends Applet {
-	
+public class GameLauncher extends Applet
+{
 	public static Game game = new Game();
-	public static final boolean DEBUG = false;
+	public static final boolean DEBUG = false; // turn debug mode on/off
 	
-	
+	// initialize the game, for an applet
 	@Override
-	public void init() {
+	public void init()
+	{
 		setLayout(new BorderLayout());
 		add(game, BorderLayout.CENTER);
 		setMinimumSize(Game.DIMENSIONS);
@@ -24,16 +33,19 @@ public class GameLauncher extends Applet {
 	}
 	
 	@Override
-	public void start() {
+	public void start()
+	{
 		game.start();
 	}
 	
 	@Override
-	public void stop() {
+	public void stop()
+	{
 		game.stop();
 	}
 	
-	public static void main(String[] args){
+	public static void main(String[] args)
+	{
 		game.setMinimumSize(Game.DIMENSIONS);
 		game.setMaximumSize(Game.DIMENSIONS);
 		game.setPreferredSize(Game.DIMENSIONS);

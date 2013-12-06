@@ -8,137 +8,188 @@ import org.galat.empiregame.gfx.Screen;
 import org.galat.empiregame.level.Level;
 import org.galat.empiregame.net.packet.Packet02Move;
 
-public class Player extends Mob {
+/*****************************************************************************\
+ *                                                                           *
+ * Player, extends Mob, extends Entity                                       *
+ *                                                                           *
+ * Class for maintaining Player-type entities.                               *
+ *                                                                           *
+\*****************************************************************************/
 
-	private InputHandler input;
-	private int color = Colors.get(-1,  111,  145,  543);
-	private int scale = 1;
-	protected boolean isSwimming = false;
-	private int tickCount = 0;
-	private String username;
+public class Player extends Mob
+{
+
+	private InputHandler input; // reference to the input handler
+	private int color = Colors.get(-1,  111,  145,  543); // colors to use for the player sprite, 3 colors + transparent
+	private int scale = 1; // scale-size of the player
+	protected boolean isSwimming = false; // to keep track of if the player is swimming for rendering
+	private int tickCount = 0; // keeps track of the number of ticks that have passed
+	private String username; // stores the username
 	
-	public Player(Level level, int x, int y, InputHandler input, String username) {
-		super(level, "Player", x, y, 1);
+	// player constructor
+	public Player(Level level, int x, int y, InputHandler input, String username)
+	{
+		super(level, "Player", x, y, 1); // pass in "Player" as the mob name/type
 		this.input = input;
 		this.username = username;
 	}
 
-	public void tick() {
+	// a game tick has passed, update what's needed to be updated
+	public void tick()
+	{
 		int xa = 0;
 		int ya = 0;
 
-		if (input!=null) {			
-			if (input.up.isPressed()) {
-				ya--;
+		if (input!=null) // if an input is connected, other players will have null input references
+		{			
+			if (input.up.isPressed())
+			{
+				ya--; // y decreases as you move up
 			}
-			if (input.down.isPressed()) {
-				ya++;
+			if (input.down.isPressed())
+			{
+				ya++; // y increases as you move down
 			}
-			if (input.left.isPressed()) {
-				xa--;
+			if (input.left.isPressed())
+			{
+				xa--; // x decreases as you move left
 			}
-			if (input.right.isPressed()) {
-				xa++;
+			if (input.right.isPressed())
+			{
+				xa++; // x increases as you move right
 			}
 		}
 		
-		if (xa != 0 || ya != 0) {
-			move(xa, ya);
+		if (xa != 0 || ya != 0) // if at least one of the movement keys was pressed
+		{
+			move(xa, ya); // call the function to move the player
 			isMoving = true;
 			
-			Packet02Move packet = new Packet02Move(this.getUsername(), this.x, this.y, this.numSteps, this.isMoving, this.movingDir);
-			packet.writeData(Game.game.socketClient);
-			
-		} else {
-			isMoving = false;
+			Packet02Move packet = new Packet02Move(this.getUsername(), this.x, this.y, this.numSteps, this.isMoving, this.movingDir); // construct a move packet
+			packet.writeData(Game.game.socketClient); // send the packet to the server
 		}
-		if (level.getTile(this.x>>5, this.y>>5).getId() == 3) {
+		else // player did not move
+		{
+			isMoving = false; // set the moving flag to false
+		}
+		
+		if (level.getTile(this.x>>5, this.y>>5).getId() == 3) // set the swimming flag if on a water tile
+		{
 			isSwimming = true;
 		}
-		if (isSwimming && level.getTile(this.x>>5,  this.y>>5).getId() != 3) {
+		if (isSwimming && level.getTile(this.x>>5,  this.y>>5).getId() != 3) // unset the swimming flag if not on a water tile
+		{
 			isSwimming = false;
 		}
 		tickCount++;
 	}
 
-	public void render(Screen screen) {
-		int xTile = 0;
-		int yTile = 29;
-		int walkingSpeed = 4;
-		int flipIt = (numSteps >> walkingSpeed) & 1;
+	// function for when the player needs to be rendered
+	public void render(Screen screen)
+	{
+		int xTile = 0; // x tile coordinate of the base character sprite, default up
+		int yTile = 29; // y tile coordinate of the base character sprite
+		int walkingSpeed = 4; // amount the player should move if walking
+		int flipIt = (numSteps >> walkingSpeed) & 1; // to alter the walking animation, default up/down
 		
 		
-		if (movingDir == 1) // if down 
+		if (movingDir == 1) // if moving down 
 		{
-			xTile += 1;
-		} else if (movingDir > 1) // if left or right
+			xTile += 1; // adjust the x tile coordinate for the player's down sprite
+		}
+		else if (movingDir > 1) // if left or right
 		{
-			int walkFrame = ((numSteps >> walkingSpeed) % 4);
+			int walkFrame = ((numSteps >> walkingSpeed) % 4); // walking animation, 4 frames
 			if (walkFrame == 3)
 			{
-				xTile = 3;
-			} else {
-				xTile += 2 + walkFrame;
+				xTile = 3; // x tile coordinate of step to head back to, the second one
+			}
+			else
+			{
+				xTile += 2 + walkFrame; // cycle through the steps
 			}
 			flipIt = (movingDir - 1) % 2; // 0 for left, 1 for right
 		}
 		
-		int modifier = 32 * scale;
-		int xOffset = x - modifier/2 + 16;
-		int yOffset = y - modifier/2;
+		int modifier = 32 * scale; // tile size multiplied by the scale
+		int xOffset = x - modifier/2 + 16; // player offset from the left of the screen
+		int yOffset = y - modifier/2; // player offset from the top of the screen
 		
-		if (!isSwimming) {
-			screen.render(xOffset, yOffset, xTile + yTile * 32, color, flipIt, scale);
-		} else {
+		if (!isSwimming) // if not swimming
+		{
+			screen.render(xOffset, yOffset, xTile + yTile * 32, color, flipIt, scale); // render the player
+		}
+		else // the player is swimming
+		{
 			int waterColor = 0;
 			
-			if (tickCount%60 < 15) {
+			// for animating, swaps colors and move slightly
+			if (tickCount%60 < 15)
+			{
 				waterColor = Colors.get(-1,  -1, 225, -1);
-			} else if (15 <= tickCount%60 && tickCount%60 < 30) {
-				waterColor = Colors.get(-1,  225, 115, -1);
-				yOffset -= 1;
-			} else if (30 <= tickCount%60 && tickCount%60 < 45) {
-				waterColor = Colors.get(-1,  115, -1, 225);
-				yOffset -= 2;
-			} else {
+			}
+			else if (15 <= tickCount%60 && tickCount%60 < 30)
+			{
 				waterColor = Colors.get(-1,  225, 115, -1);
 				yOffset -= 1;
 			}
-			screen.render(xOffset, yOffset, xTile + yTile * 32, color, flipIt, scale);
-			screen.render(xOffset,  yOffset, 28 * 32, waterColor, 0x00, 1);	
+			else if (30 <= tickCount%60 && tickCount%60 < 45)
+			{
+				waterColor = Colors.get(-1,  115, -1, 225);
+				yOffset -= 2;
+			}
+			else
+			{
+				waterColor = Colors.get(-1,  225, 115, -1);
+				yOffset -= 1;
+			}
+			screen.render(xOffset, yOffset, xTile + yTile * 32, color, flipIt, scale); // render the player
+			screen.render(xOffset,  yOffset, 28 * 32, waterColor, 0x00, 1);	 // render the water rings
 		}
 		
-		if (username != null) {
-			Font.render(username, screen, xOffset - ((username.length()-1)/2 * 32), yOffset-20, Colors.get(-1,  -1, -1, 555), 1);
+		if (username != null) // if there is a username set
+		{
+			Font.render(username, screen, xOffset - ((username.length()-1)/2 * 32), yOffset-20, Colors.get(-1,  -1, -1, 555), 1); // print the player's name near them
 		}
 	}
 
-	public boolean hasCollided(int xa, int ya) {
+	// function to check if a player will be stopped by another tile if they move xa, ya
+	// TODO: improve this
+	public boolean hasCollided(int xa, int ya)
+	{
+		// adjusts the boundaries of the player for collision detection
 		int xMin = 10;
 		int xMax = 20;
 		int yMin = -5;
 		int yMax = 13;
 
-	    if (xa != 0) {
-	            for(int x = xMin; x <= xMax; x++) {
-	                    if (isSolidTile(xa, ya, x, yMin+1) || isSolidTile(xa, ya, x, yMax-1)) {
+	    if (xa != 0) // if there is movement in the x direction
+	    {
+	            for(int x = xMin; x <= xMax; x++) // check along the x-axis (only need to check the endpoints?)
+	            {
+	                    if (isSolidTile(xa, ya, x, yMin+1) || isSolidTile(xa, ya, x, yMax-1)) // check at this x for a solid tile on the top and bottom
+	                    {
 	                            return true;
 	                    }
 	            }
 	    }
 	                   
-	    if (ya != 0) {
-	            for(int y = yMin; y <= yMax; y++) {
-	                    if (isSolidTile(xa, ya, xMin+1, y) || isSolidTile(xa, ya, xMax-1, y)) {
+	    if (ya != 0) // if there is movement in the y direction
+	    {
+	            for(int y = yMin; y <= yMax; y++) // check along the y-axis (only need to check the endpoints?)
+	            {
+	                    if (isSolidTile(xa, ya, xMin+1, y) || isSolidTile(xa, ya, xMax-1, y)) // check at this y for a solid tile on the left and right
+	                    {
 	                            return true;
 	                    }
 	            }
 	    }
 
-		return false;
+		return false; // no collision with a solid tile
 	}
 	
-	public String getUsername() {
+	public String getUsername()
+	{
 		return this.username;
 	}
 }

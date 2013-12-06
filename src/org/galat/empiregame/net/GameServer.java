@@ -151,48 +151,57 @@ public class GameServer extends Thread
 		}
 	}
 	
+	// a player disconnected, remove them from the list
 	public void removeConnection(Packet01Disconnect packet) 
 	{
-		this.connectedPlayers.remove(getPlayerMPIndex(packet.getUsername()));
-		packet.writeData(this);
+		this.connectedPlayers.remove(getPlayerMPIndex(packet.getUsername())); // get the player's index in the list from the username in the packet and remove the item in the list
+		packet.writeData(this); // send a packet to all the clients informing them that the player has disconnected
 	}
 	
+	// get a reference to a playermp in the list of clients based on the username
 	public PlayerMP getPlayerMP(String username) 
 	{
-		for (PlayerMP player : this.connectedPlayers){
-			return player;
+		for (PlayerMP player : this.connectedPlayers) // for each player in the list of connected players
+		{
+			if (player.getUsername().equals(username)) // if the username matches this player in the loop
+				return player; // return a reference to the player
 		}
-		return null;
+		return null; // the username wasn't found, return null
 	}
 	
+	// get the index of the player in the list of connected players based on the username
 	public int getPlayerMPIndex(String username) 
 	{
-		int index = 0;
-		for (PlayerMP player : this.connectedPlayers)
+		int index = 0; // start at the first player 
+		
+		for (PlayerMP player : this.connectedPlayers) // for each player in the list of connected players
 		{
-			if (player.getUsername().equals(username)) 
-				break;
-			index++;
+			if (player.getUsername().equals(username)) // if the username matches this player in the loop
+			{
+				return index; // return the index value of where we are in the list
+			}
+			index++; // increment index
 		}
-		return index;
+		return -1; // username was not found in the list
 	}
 	
+	// send a packet to a client
 	public void sendData(byte[] data, InetAddress ipAddress, int port) 
 	{
-		if (!game.isApplet)
+		if (!game.isApplet) // if this isn't an applet - FIX THIS...
 		{ 
-			DatagramPacket packet = new DatagramPacket(data, data.length, ipAddress, port);
+			DatagramPacket packet = new DatagramPacket(data, data.length, ipAddress, port); // construct a new packet to send
 			try 
 			{
-				socket.send(packet);
-			} catch (IOException e) 
+				socket.send(packet); // try to send the packet
+			} catch (IOException e)  // if the packet didn't send
 			{
 				e.printStackTrace();
 			}
 		}
 	}
 
-	// sends a packet to all the players that are connected
+	// sends a packet to all the clients/players that are connected
 	public void sendDataToAllClients(byte[] data) 
 	{
 		for (PlayerMP p : connectedPlayers) // for each playermp in the list of connected players
