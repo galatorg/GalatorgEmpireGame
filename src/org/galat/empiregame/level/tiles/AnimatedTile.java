@@ -1,5 +1,7 @@
 package org.galat.empiregame.level.tiles;
 
+import org.galat.empiregame.gfx.SpriteSheet;
+
 /*****************************************************************************\
  *                                                                           *
  * AnimatedTile, extends BasicTile, extends Tile                             *
@@ -17,9 +19,9 @@ public class AnimatedTile extends BasicTile
 	private int animationSwitchDelay; // delay time between animation frames
 	
 	// constructor
-	public AnimatedTile(int id, int[][] animationCoords, int tileColor, int levelColor, int animationSwitchDelay) 
+	public AnimatedTile(int id, int[][] animationCoords, int tileColor, int levelColor, int animationSwitchDelay, SpriteSheet sheet) 
 	{
-		super(id, animationCoords[0][0], animationCoords[0][1], tileColor, levelColor); // set the data for first frame
+		super(id, animationCoords[0][0], animationCoords[0][1], tileColor, levelColor, sheet); // set the data for first frame
 		this.animationTileCoords = animationCoords; // coordinates of the animation tiles
 		this.currentAnimationIndex = 0; // set the index at the first frame
 		this.lastIterationTime = System.currentTimeMillis(); // initialize the last time the index was updated as now
@@ -33,7 +35,7 @@ public class AnimatedTile extends BasicTile
 		{
 			lastIterationTime = System.currentTimeMillis(); // set the last time the tile was updated as now
 			currentAnimationIndex = (currentAnimationIndex + 1) % animationTileCoords.length; // increment the animation frame index, but make sure it doesn't go past the end
-			this.tileId = (animationTileCoords[currentAnimationIndex][0] + (animationTileCoords[currentAnimationIndex][1]*32)); // update the tile id based on the new index 
+			this.tileId = (animationTileCoords[currentAnimationIndex][0] + (animationTileCoords[currentAnimationIndex][1]*tileSheet.tileSize)); // update the tile id based on the new index 
 		}
 	}
 }

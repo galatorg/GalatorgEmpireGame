@@ -1,5 +1,6 @@
 package org.galat.empiregame.entities;
 
+import org.galat.empiregame.gfx.SpriteSheet;
 import org.galat.empiregame.level.Level;
 import org.galat.empiregame.level.tiles.Tile;
 
@@ -22,8 +23,9 @@ public abstract class Mob extends Entity {
 	protected int scale = 1; // scale size of the mob
 	
 	// mob constructor
-	public Mob(Level level, String name, int x, int y, int speed) {
-		super(level);
+	public Mob(Level level, String name, int x, int y, int speed, SpriteSheet sheet)
+	{
+		super(level, sheet);
 		this.name = name;
 		this.x = x;
 		this.y = y;
@@ -63,8 +65,8 @@ public abstract class Mob extends Entity {
 			return false; // then there is nothing to check, default false(not solid)
 		}
 		
-		Tile lastTile = level.getTile(((this.x + x)>>5), ((this.y +y)>>5)); // the tile you are coming from
-		Tile newTile = level.getTile(((this.x + x + xa)>>5), ((this.y + y + ya)>>5)); // the tile you are going to
+		Tile lastTile = level.getTile(((this.x + x)>>level.tilesSheet.bitsNeeded), ((this.y +y)>>level.tilesSheet.bitsNeeded)); // the tile you are coming from
+		Tile newTile = level.getTile(((this.x + x + xa)>>level.tilesSheet.bitsNeeded), ((this.y + y + ya)>>level.tilesSheet.bitsNeeded)); // the tile you are going to
 		
 		if (!lastTile.equals(newTile) && newTile.isSolid()) // if the mob has not changed tiles and the tile you are moving to is solid
 		{

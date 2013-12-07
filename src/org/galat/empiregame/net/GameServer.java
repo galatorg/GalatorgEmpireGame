@@ -10,6 +10,7 @@ import java.util.List;
 
 import org.galat.empiregame.Game;
 import org.galat.empiregame.entities.PlayerMP;
+import org.galat.empiregame.gfx.SpriteSheet;
 import org.galat.empiregame.net.packet.Packet;
 import org.galat.empiregame.net.packet.Packet.PacketTypes;
 import org.galat.empiregame.net.packet.Packet00Login;
@@ -23,7 +24,7 @@ import org.galat.empiregame.net.packet.Packet02Move;
  * Class to perform the operations of a server.  Clients connect to it and   *
  * send packets to it which get processed                                    *
  *                                                                           *
- * SPLIT INTO IT'S OWN APPLICATION?                                          *
+ * SPLIT INTO IT'S OWN APPLICATION? WILL BE CHANGED GREATLY                  *
  *                                                                           *
 \*****************************************************************************/
 
@@ -91,7 +92,7 @@ public class GameServer extends Thread
 	private void handleLogin(Packet00Login packet, InetAddress address, int port)
 	{
 		System.out.println("[" + address.getHostAddress() + ":" + port + "]" + ((Packet00Login)packet).getUsername() + " has connected");
-		PlayerMP player = new PlayerMP(game.level, 100, 100, ((Packet00Login)packet).getUsername(), address, port); // create a PlayerMP to represent the player that connected
+		PlayerMP player = new PlayerMP(game.level, 100, 100, ((Packet00Login)packet).getUsername(), SpriteSheet.defaultPlayer, address, port); // create a PlayerMP to represent the player that connected
 		this.addConnection(player, (Packet00Login)packet); // add the player to the list of connected players
 		
 	}

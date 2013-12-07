@@ -5,7 +5,6 @@ package org.galat.empiregame.gfx;
  * Screen class                                                              *
  *                                                                           *
  * Used to render anything to the main game area                             *
- * TODO: Will need to be updated to use multiple spritesheets                *
  *                                                                           *
 \*****************************************************************************/
 
@@ -25,20 +24,17 @@ public class Screen
 	public int width; // width of main game area to render on
 	public int height; // height of main game area to render on
 	
-	public SpriteSheet sheet; // spritesheet to use TODO: won't need with multiple spritesheets
-	
 	// constructor
-	public Screen(int width, int height, SpriteSheet sheet)
+	public Screen(int width, int height)
 	{
 		this.width = width; // set the width variable
 		this.height = height; // set the height variable
-		this.sheet = sheet; // save a reference to the spritesheet TODO: remove with multiple spritesheets
 		
 		pixels = new int[width * height]; // initialize the pixels array
 	}
 	
 	// render something on the screen
-	public void render(int xPos, int yPos, int tile, int color, int mirrorDir, int scale)
+	public void render(int xPos, int yPos, int tile, int color, int mirrorDir, int scale, SpriteSheet sheet)
 	{
 		xPos -= xOffset; // compensate for the xOffset
 		yPos -= yOffset; // compensate for the yOffset
@@ -47,21 +43,21 @@ public class Screen
 		boolean mirrorY = ( mirrorDir & BIT_MIRROR_Y ) > 0; // check if the Y mirror bit is on
 		
 		int scaleMap = scale - 1;
-		int xTile = tile%32; // x position in tile grid
-		int yTile = tile>>5; // y position in tile grid
-		int tileOffset = (xTile<<5) + (yTile<<5) * sheet.width; // first pixel of the current tile
+		int xTile = tile%sheet.tilesOnX; // x position in tile grid
+		int yTile = tile>>sheet.bitsNeeded; // y position in tile grid
+		int tileOffset = (xTile<<sheet.bitsNeeded) + (yTile<<sheet.bitsNeeded) * sheet.width; // first pixel of the current tile
 		
-		for (int y = 0; y < 32; y++) // for each pixel in the height of the tile
+		for (int y = 0; y < sheet.tileSize; y++) // for each pixel in the height of the tile
 		{
 			int ySheet = y;	// current y coordinate in the tile
-			if (mirrorY) ySheet = 31 - y; // mirror the y coordinate in the tile if needed
-			int yPixel = y + yPos + (y * scaleMap) - ((scaleMap<<5) / 2); // calculate what the starting y pixel coordinate on the game area taking scale into consideration
+			if (mirrorY) ySheet = (sheet.tileSize-1) - y; // mirror the y coordinate in the tile if needed
+			int yPixel = y + yPos + (y * scaleMap) - ((scaleMap<<sheet.bitsNeeded) / 2); // calculate what the starting y pixel coordinate on the game area taking scale into consideration
 			
-			for (int x = 0; x < 32; x++) // for each pixel in the width of the tile
+			for (int x = 0; x < sheet.tileSize; x++) // for each pixel in the width of the tile
 			{
 				int xSheet = x; // current x coordinate in the tile
-				if (mirrorX) xSheet = 31 - x; // mirror the x coordinate in the tile if needed
-				int xPixel = x + xPos + (x * scaleMap) - ((scaleMap<<5) / 2); // calculate what the starting x pixel coordinate on the game area taking scale into consideration
+				if (mirrorX) xSheet = (sheet.tileSize-1) - x; // mirror the x coordinate in the tile if needed
+				int xPixel = x + xPos + (x * scaleMap) - ((scaleMap<<sheet.bitsNeeded) / 2); // calculate what the starting x pixel coordinate on the game area taking scale into consideration
 				int col = (color >> (sheet.pixels[xSheet + ySheet * sheet.width + tileOffset] * 8))  & 255; // get the pixel/color of the current x,y pixel in the tile, &255 trims down to the blue channel that is currently using 2 bits to represent 4 colors
 				
 				if (col < 255) // if it's a valid color/pixel value

@@ -26,8 +26,8 @@ import org.galat.empiregame.net.packet.Packet00Login;
  *                                                                           *
 \*****************************************************************************/
 
-public class Game extends Canvas implements Runnable{
-
+public class Game extends Canvas implements Runnable
+{
 	private static final long serialVersionUID = 1L;
 
 	public static final int WIDTH = 400;
@@ -81,12 +81,12 @@ public class Game extends Canvas implements Runnable{
 			}
 		}
 		
-		screen = new Screen(WIDTH, HEIGHT, new SpriteSheet("/sprite_sheet.png"));
+		screen = new Screen(WIDTH, HEIGHT);
 		input = new InputHandler(this);
 		windowHandler = new WindowHandler(this);
-		level = new Level("/levels/water_level.png");
+		level = new Level("/levels/water_level.png", SpriteSheet.defaultTiles);
 		//player = new PlayerMP(level, 32, 32, input, JOptionPane.showInputDialog(this, "Please enter a username"), null, -1);
-		player = new PlayerMP(level, 32, 32, input, "X", null, -1);
+		player = new PlayerMP(level, 32, 32, input, "X", SpriteSheet.defaultPlayer, null, -1);
 		level.addEntity(player);
 		if (!isApplet)
 		{
@@ -108,7 +108,7 @@ public class Game extends Canvas implements Runnable{
 		
 		if (!isApplet)
 		{
-			/*
+			/* TODO: Remove when server functionality added
 			if (JOptionPane.showConfirmDialog(this, "Do you want to run the server") == 0) {
 				socketServer = new GameServer(this);
 				socketServer.start();
@@ -181,8 +181,7 @@ public class Game extends Canvas implements Runnable{
 			if (System.currentTimeMillis() - lastTimer >= 1000) // at least 1 second has passed
 			{
 				lastTimer += 1000; // move up a 1000 milliseconds to process this section again
-				frame.setTitle("The Galatorg Empire | " + ticks + " ticks, " + frames + " FPS " + tickCount + " total ticks"); // update game title with tick and FPS info - TODO: temporary tick/FPS info, remove
-				debug(DebugLevel.INFO, ticks + " ticks, " + frames + " frames");
+				if (debug) frame.setTitle("The Galatorg Empire | " + ticks + " ticks, " + frames + " FPS " + tickCount + " total ticks"); // update game title with tick and FPS info if in debug
 				frames = 0; // reset the frames counter to keep track of FPS
 				ticks = 0; // ~60 ticks should have passed, reset the counter
 			}
@@ -228,7 +227,8 @@ public class Game extends Canvas implements Runnable{
 	}
 	
 	// function to print out debug messages to the console when debug is on
-	public void debug(DebugLevel level, String msg){
+	public void debug(DebugLevel level, String msg)
+	{
 		switch(level) // select the level of severity
 		{
 		default:

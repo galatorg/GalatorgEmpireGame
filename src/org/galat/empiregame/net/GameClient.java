@@ -9,6 +9,7 @@ import java.net.UnknownHostException;
 
 import org.galat.empiregame.Game;
 import org.galat.empiregame.entities.PlayerMP;
+import org.galat.empiregame.gfx.SpriteSheet;
 import org.galat.empiregame.net.packet.Packet;
 import org.galat.empiregame.net.packet.Packet.PacketTypes;
 import org.galat.empiregame.net.packet.Packet00Login;
@@ -113,7 +114,7 @@ public class GameClient extends Thread
 	private void handleLogin(Packet00Login packet, InetAddress address, int port) 
 	{
 		System.out.println("[" + address.getHostAddress() + ":" + port + "]" + packet.getUsername() + " has joined the game");
-		PlayerMP player = new PlayerMP(game.level, packet.getX(), packet.getY(), packet.getUsername(), address, port); // create a new PlayerMP instance to represent this player
+		PlayerMP player = new PlayerMP(game.level, packet.getX(), packet.getY(), packet.getUsername(), SpriteSheet.defaultPlayer, address, port); // create a new PlayerMP instance to represent this player, default players sheet
 		game.level.addEntity(player); // add the PlayerMP just created to the list of entities in the level
 	}
 	

@@ -17,7 +17,7 @@ import javax.swing.JFrame;
 public class GameLauncher extends Applet
 {
 	public static Game game = new Game();
-	public static final boolean DEBUG = false; // turn debug mode on/off
+	public static final boolean DEBUG = true; // turn debug mode on/off
 	
 	// initialize the game, for an applet
 	@Override

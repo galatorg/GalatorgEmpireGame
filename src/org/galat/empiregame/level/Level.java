@@ -11,15 +11,16 @@ import javax.imageio.ImageIO;
 import org.galat.empiregame.entities.Entity;
 import org.galat.empiregame.entities.PlayerMP;
 import org.galat.empiregame.gfx.Screen;
+import org.galat.empiregame.gfx.SpriteSheet;
 import org.galat.empiregame.level.tiles.Tile;
 
 /*****************************************************************************\
  *                                                                            *
- * Level                                                                      *
+ * Level class                                                                *
  *                                                                            *
  * The Level class is used to store and generate data pertaining to the world *
  * the player is in                                                           *
- * 
+ *                                                                            *
 \*****************************************************************************/
 
 public class Level
@@ -30,6 +31,7 @@ public class Level
 	public List<Entity> entities = new ArrayList<Entity>(); // list of players,mobs, etc. in the level.
 	private String imagePath; // path to the bitmap(png) that stores the tile info for the level
 	private BufferedImage image; // variable that stores the bitmap info from the file
+	public final SpriteSheet tilesSheet; // the sheet used to draw the ground tiles
 	
 	/*****************************************************************************\
 	*                                                                             *
@@ -42,7 +44,7 @@ public class Level
 	*                                                                             *
 	\*****************************************************************************/
 	
-	public Level(String imagePath)
+	public Level(String imagePath, SpriteSheet sheet)
 	{
 		if (imagePath != null) // if there was something passed in 
 		{
@@ -57,6 +59,14 @@ public class Level
 			this.generateLevel(); // call generateLevel to fill in default IDs in the tiles array
 		}
 		
+		if (sheet != null)
+		{
+			tilesSheet = sheet;
+		}
+		else
+		{
+			tilesSheet = SpriteSheet.defaultTiles; // default sheet
+		}
 	}
 	
 	// load the level data from the file at imagePath
@@ -111,8 +121,8 @@ public class Level
 	}
 	
 	// function to change the tile to a new tile in the level
-	// x - x coordinate
-	// y - y coordinate
+	// x - x tile coordinate
+	// y - y tile coordinate
 	// newTile - Tile class instance to be put at that location
 	public void alterTile(int x, int y, Tile newTile)
 	{
@@ -166,22 +176,21 @@ public class Level
 	}
 	
 	// function to render the current tiles on the screen based on the xOffset and yOffset
-	// TODO: modify bitshifts to be more modular for different sized tiles in a world
 	public void renderTiles(Screen screen, int xOffset, int yOffset)
 	{
 		// these prevent (non)rendering outside the level
 		if(xOffset < 0) xOffset = 0; // xOffset cannot be negative, if so, set to 0
-		if(xOffset > ((width<<5) - screen.width)) xOffset = ((width<<5)-screen.width); // xOffset cannot go past the right edge of the level
+		if(xOffset > ((width<<tilesSheet.bitsNeeded) - screen.width)) xOffset = ((width<<tilesSheet.bitsNeeded)-screen.width); // xOffset cannot go past the right edge of the level
 		if(yOffset < 0) yOffset = 0; // yOffset cannot be negative, if so, set to 0
-		if(yOffset > ((height<<5) - screen.height)) yOffset = ((height<<5)-screen.height); // yOffset cannot go past the bottom edge of the level
+		if(yOffset > ((height<<tilesSheet.bitsNeeded) - screen.height)) yOffset = ((height<<tilesSheet.bitsNeeded)-screen.height); // yOffset cannot go past the bottom edge of the level
 		
 		screen.setOffset(xOffset, yOffset); // set the offsets after they have been checked
 		
-		for (int y = (yOffset>>5); y < ((yOffset + screen.height)>>5)+1; y++) // render each row that's on the screen
+		for (int y = (yOffset>>tilesSheet.bitsNeeded); y < ((yOffset + screen.height)>>tilesSheet.bitsNeeded)+1; y++) // render each row that's on the screen
 		{
-			for (int x = (xOffset>>5); x < ((xOffset + screen.width)>>5)+1; x++) // render each column that's on the screen
+			for (int x = (xOffset>>tilesSheet.bitsNeeded); x < ((xOffset + screen.width)>>tilesSheet.bitsNeeded)+1; x++) // render each column that's on the screen
 			{
-				getTile(x,y).render(screen, this, x<<5, y<<5); // get the current tile and tell it to render
+				getTile(x,y).render(screen, this, x<<tilesSheet.bitsNeeded, y<<tilesSheet.bitsNeeded); // get the current tile and tell it to render
 			}
 		}
  	}

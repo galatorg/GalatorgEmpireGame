@@ -5,6 +5,7 @@ import org.galat.empiregame.InputHandler;
 import org.galat.empiregame.gfx.Colors;
 import org.galat.empiregame.gfx.Font;
 import org.galat.empiregame.gfx.Screen;
+import org.galat.empiregame.gfx.SpriteSheet;
 import org.galat.empiregame.level.Level;
 import org.galat.empiregame.net.packet.Packet02Move;
 
@@ -27,9 +28,9 @@ public class Player extends Mob
 	private String username; // stores the username
 	
 	// player constructor
-	public Player(Level level, int x, int y, InputHandler input, String username)
+	public Player(Level level, int x, int y, InputHandler input, String username, SpriteSheet sheet)
 	{
-		super(level, "Player", x, y, 1); // pass in "Player" as the mob name/type
+		super(level, "Player", x, y, 1, sheet); // pass in "Player" as the mob name/type
 		this.input = input;
 		this.username = username;
 	}
@@ -73,11 +74,11 @@ public class Player extends Mob
 			isMoving = false; // set the moving flag to false
 		}
 		
-		if (level.getTile(this.x>>5, this.y>>5).getId() == 3) // set the swimming flag if on a water tile
+		if (level.getTile(this.x>>level.tilesSheet.bitsNeeded, this.y>>level.tilesSheet.bitsNeeded).getId() == 3) // set the swimming flag if on a water tile
 		{
 			isSwimming = true;
 		}
-		if (isSwimming && level.getTile(this.x>>5,  this.y>>5).getId() != 3) // unset the swimming flag if not on a water tile
+		if (isSwimming && level.getTile(this.x>>level.tilesSheet.bitsNeeded,  this.y>>level.tilesSheet.bitsNeeded).getId() != 3) // unset the swimming flag if not on a water tile
 		{
 			isSwimming = false;
 		}
@@ -89,7 +90,7 @@ public class Player extends Mob
 	{
 		int xTile = 0; // x tile coordinate of the base character sprite, default up
 		int yTile = 29; // y tile coordinate of the base character sprite
-		int walkingSpeed = 4; // amount the player should move if walking
+		int walkingSpeed = entitySheet.bitsNeeded - 1; // amount the player should move if walking
 		int flipIt = (numSteps >> walkingSpeed) & 1; // to alter the walking animation, default up/down
 		
 		
@@ -111,13 +112,13 @@ public class Player extends Mob
 			flipIt = (movingDir - 1) % 2; // 0 for left, 1 for right
 		}
 		
-		int modifier = 32 * scale; // tile size multiplied by the scale
-		int xOffset = x - modifier/2 + 16; // player offset from the left of the screen
+		int modifier = entitySheet.tileSize * scale; // tile size multiplied by the scale
+		int xOffset = x - modifier/2 + entitySheet.tileSize/2; // player offset from the left of the screen
 		int yOffset = y - modifier/2; // player offset from the top of the screen
 		
 		if (!isSwimming) // if not swimming
 		{
-			screen.render(xOffset, yOffset, xTile + yTile * 32, color, flipIt, scale); // render the player
+			screen.render(xOffset, yOffset, xTile + yTile * level.tilesSheet.tileSize, color, flipIt, scale, entitySheet); // render the player
 		}
 		else // the player is swimming
 		{
@@ -143,13 +144,13 @@ public class Player extends Mob
 				waterColor = Colors.get(-1,  225, 115, -1);
 				yOffset -= 1;
 			}
-			screen.render(xOffset, yOffset, xTile + yTile * 32, color, flipIt, scale); // render the player
-			screen.render(xOffset,  yOffset, 28 * 32, waterColor, 0x00, 1);	 // render the water rings
+			screen.render(xOffset, yOffset, xTile + yTile * level.tilesSheet.tileSize, color, flipIt, scale, entitySheet); // render the player
+			screen.render(xOffset,  yOffset, 28 * level.tilesSheet.tileSize, waterColor, 0x00, 1, entitySheet);	 // render the water rings
 		}
 		
 		if (username != null) // if there is a username set
 		{
-			Font.render(username, screen, xOffset - ((username.length()-1)/2 * 32), yOffset-20, Colors.get(-1,  -1, -1, 555), 1); // print the player's name near them
+			Font.defaultFont.render(username, screen, xOffset - ((username.length()-1)/2 * Font.defaultFont.getFontSize()), yOffset-20, Colors.get(-1,  -1, -1, 555), 1); // print the player's name near them
 		}
 	}
 
@@ -157,7 +158,7 @@ public class Player extends Mob
 	// TODO: improve this
 	public boolean hasCollided(int xa, int ya)
 	{
-		// adjusts the boundaries of the player for collision detection
+		// collision box - adjusts the boundaries of the player for collision detection
 		int xMin = 10;
 		int xMax = 20;
 		int yMin = -5;
@@ -192,4 +193,11 @@ public class Player extends Mob
 	{
 		return this.username;
 	}
+	
+	public void setSpriteSheet(SpriteSheet sheet)
+	{
+		if (sheet==null) sheet = SpriteSheet.defaultPlayer;
+		entitySheet = sheet;
+	}
+
 }

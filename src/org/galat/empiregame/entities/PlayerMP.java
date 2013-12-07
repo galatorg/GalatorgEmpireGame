@@ -3,6 +3,7 @@ package org.galat.empiregame.entities;
 import java.net.InetAddress;
 
 import org.galat.empiregame.InputHandler;
+import org.galat.empiregame.gfx.SpriteSheet;
 import org.galat.empiregame.level.Level;
 
 /*****************************************************************************\
@@ -20,17 +21,17 @@ public class PlayerMP extends Player
 	public int port;
 
 	// constructor for the user's player
-	public PlayerMP(Level level, int x, int y, InputHandler input, String username, InetAddress ipAddress, int port)
+	public PlayerMP(Level level, int x, int y, InputHandler input, String username, SpriteSheet sheet, InetAddress ipAddress, int port)
 	{
-		super(level, x, y, input, username);
+		super(level, x, y, input, username, sheet);
 		this.ipAddress = ipAddress;
 		this.port = port;
 	}
 
 	// constructor for other players
-	public PlayerMP(Level level, int x, int y, String username, InetAddress ipAddress, int port)
+	public PlayerMP(Level level, int x, int y, String username, SpriteSheet sheet, InetAddress ipAddress, int port)
 	{
-		super(level, x, y, null, username); // null used for no input
+		super(level, x, y, null, username, sheet); // null used for no input
 		this.ipAddress = ipAddress;
 		this.port = port;
 	}	
