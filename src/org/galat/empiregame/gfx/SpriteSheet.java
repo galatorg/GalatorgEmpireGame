@@ -24,7 +24,7 @@ public class SpriteSheet
 	// predefined spritesheets
 	public static SpriteSheet defaultTiles = new SpriteSheet("/sprite_sheet.png");
 	public static SpriteSheet defaultPlayer = new SpriteSheet("/sprite_sheet.png");
-	public static SpriteSheet defaultFont = new SpriteSheet("/sprite_sheet.png");
+	public static SpriteSheet defaultFont = new SpriteSheet("/spritesheets/default/defaultFont.png");
 	
 	// constructor for a basic 4 color spritesheet (you can replace the 4 colors with whatever color you want)
 	public SpriteSheet(String path)

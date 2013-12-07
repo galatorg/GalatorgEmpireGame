@@ -30,7 +30,7 @@ public class Font
 		for (int i = 0; i<msg.length(); i++)
 		{
 			int charIndex = chars.indexOf(msg.charAt(i)); // get the index of the current character in chars
-			if (charIndex >= 0) screen.render(x + (i*fontSheet.tileSize), y, charIndex + 30*fontSheet.tileSize, color, 0x00, scale, fontSheet); // if the character was found, render it
+			if (charIndex >= 0) screen.render(x + (i*fontSheet.tileSize), y, charIndex, color, 0x00, scale, fontSheet); // if the character was found, render it
 		}
 	}
 	
