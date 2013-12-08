@@ -162,7 +162,7 @@ public class Game extends Canvas implements Runnable
 				delta--; // decrement the number of ticks that needs to be processed
 				shouldRender = true; // if the game clock is running it should be rendered
 			}
-	/*		
+
 			try
 			{
 				Thread.sleep(2);
@@ -171,7 +171,7 @@ public class Game extends Canvas implements Runnable
 			{
 				e.printStackTrace();
 			}	
-*/
+
 			if (shouldRender)
 			{
 				frames++; // increment frames (this second)

@@ -89,7 +89,7 @@ public class Player extends Mob
 	public void render(Screen screen)
 	{
 		int xTile = 0; // x tile coordinate of the base character sprite, default up
-		int yTile = 29; // y tile coordinate of the base character sprite
+		int yTile = 1; // y tile coordinate of the base character sprite
 		int walkingSpeed = entitySheet.bitsNeeded - 1; // amount the player should move if walking
 		int flipIt = (numSteps >> walkingSpeed) & 1; // to alter the walking animation, default up/down
 		
