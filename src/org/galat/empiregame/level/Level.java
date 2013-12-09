@@ -13,6 +13,8 @@ import org.galat.empiregame.entities.PlayerMP;
 import org.galat.empiregame.gfx.Screen;
 import org.galat.empiregame.gfx.SpriteSheet;
 import org.galat.empiregame.level.tiles.Tile;
+import org.galat.empiregame.level.tileset.Tileset;
+import org.galat.empiregame.level.tileset.DefaultTileset;
 
 /*****************************************************************************\
  *                                                                            *
@@ -32,6 +34,7 @@ public class Level
 	private String imagePath; // path to the bitmap(png) that stores the tile info for the level
 	private BufferedImage image; // variable that stores the bitmap info from the file
 	public final SpriteSheet tilesSheet; // the sheet used to draw the ground tiles
+	private final Tileset levelTileset;
 	
 	/*****************************************************************************\
 	*                                                                             *
@@ -44,8 +47,26 @@ public class Level
 	*                                                                             *
 	\*****************************************************************************/
 	
-	public Level(String imagePath, SpriteSheet sheet)
+	public Level(String imagePath, SpriteSheet sheet, Tileset levelTiles)
 	{
+		if (levelTiles != null) // if there is a tileset to be used
+		{
+			levelTileset = levelTiles;
+		}
+		else // use the default tileset instead
+		{
+			levelTileset = new DefaultTileset();
+		}
+
+		if (sheet != null)
+		{
+			tilesSheet = sheet;
+		}
+		else
+		{
+			tilesSheet = SpriteSheet.defaultTiles; // default sheet
+		}		
+
 		if (imagePath != null) // if there was something passed in 
 		{
 			this.imagePath = imagePath; // store the path
@@ -57,15 +78,6 @@ public class Level
 			this.height = 64; // default height of 64
 			tiles = new short[width * height]; // generate array to hold the IDs of all the tiles
 			this.generateLevel(); // call generateLevel to fill in default IDs in the tiles array
-		}
-		
-		if (sheet != null)
-		{
-			tilesSheet = sheet;
-		}
-		else
-		{
-			tilesSheet = SpriteSheet.defaultTiles; // default sheet
 		}
 	}
 	
@@ -95,12 +107,12 @@ public class Level
 		{
 			for (int x = 0; x < width; x++) // for each column in the level
 			{
-				tileCheck: for (Tile t : Tile.tiles) // for each tile in the array of Id's
+				for (int i = 0; i < levelTileset.getTilesetSize(); i++) // for each tile in the array of Id's
 				{
-					if (t != null && t.getLevelColor() == tileColors[x + y * width]) // if there is a tile defined and the color matches that tile
+					if (levelTileset.tiles[i] != null && levelTileset.tiles[i].getLevelColor() == tileColors[x + y * width]) // if there is a tile defined and the color matches that tile
 					{
-						this.tiles[x + y * width] = t.getId(); // store the tile id
-						break tileCheck; // break the loop checking each tile type
+						this.tiles[x + y * width] = levelTileset.tiles[i].getId(); // store the tile id
+						break; // break the loop checking each tile type for this pixel in the level
 					}
 				}
 			} // check the next column
@@ -131,6 +143,7 @@ public class Level
 		saveLevelToFile(); // update the file, temporary
 	}
 	
+	// TODO: upgrade to be better....create another that also does this with parameters.
 	// fills the tiles array with default IDs
 	public void generateLevel()
 	{
@@ -140,11 +153,11 @@ public class Level
 			{
 					if (x * y % 10 < 7 )
 					{
-						tiles[x + y * width] = Tile.GRASS.getId();
+						tiles[x + y * width] = DefaultTileset.GRASS.getId();
 					}
 					else
 					{
-						tiles[x + y * width] = Tile.STONE.getId();
+						tiles[x + y * width] = DefaultTileset.STONE.getId();
 					}
 			}
 		}
@@ -157,21 +170,22 @@ public class Level
 	}
 	
 	// update the entities and tiles in the level
-	// TODO: improve this eventually to update only the items that should be 
+	// TODO: improve this eventually to update only the items that should be ?
 	public void tick()
 	{
 		for (Entity e : getEntities()) // for each entity in the level
 		{
 			e.tick(); // call the tick function of the entity to update it
 		}
-		
-		for (Tile t : Tile.tiles) // for each tile in the level
+		int i;
+		int j = tiles.length;
+		for (i = 0; i < j; i++) // for each tile in the level - TODO: update which tiles? 
 		{
-			if (t == null)
+			if (levelTileset.tiles[tiles[i]] == null)
 			{
 				break; // skip this tile if it's null
 			}
-			t.tick(); // call the tick function of the tile to update it
+			levelTileset.tiles[tiles[i]].tick(); // call the tick function of the tile to update it
 		}
 	}
 	
@@ -207,8 +221,8 @@ public class Level
 	// function to get the tile located at x,y(in tile coordinates)
 	public Tile getTile(int x, int y)
 	{
-		if (0 > x || x >= width || 0 > y || y >= height) return Tile.VOID; // if the x or y value is out of bounds return a VOID tile
-		return Tile.tiles[tiles[x + y * width]];
+		if (0 > x || x >= width || 0 > y || y >= height) return DefaultTileset.VOID; // if the x or y value is out of bounds return a VOID tile
+		return levelTileset.tiles[tiles[x + y * width]];
 	}
 
 	// add a new entity to the list of entities in the level

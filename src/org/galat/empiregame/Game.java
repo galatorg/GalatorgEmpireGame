@@ -84,7 +84,7 @@ public class Game extends Canvas implements Runnable
 		screen = new Screen(WIDTH, HEIGHT);
 		input = new InputHandler(this);
 		windowHandler = new WindowHandler(this);
-		level = new Level("/levels/water_level.png", SpriteSheet.defaultTiles);
+		level = new Level("/levels/water_level.png", SpriteSheet.defaultTiles, null);
 		//player = new PlayerMP(level, 32, 32, input, JOptionPane.showInputDialog(this, "Please enter a username"), null, -1);
 		player = new PlayerMP(level, 32, 32, input, "X", SpriteSheet.defaultPlayer, null, -1);
 		level.addEntity(player);

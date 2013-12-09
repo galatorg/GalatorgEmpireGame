@@ -7,15 +7,16 @@ package org.galat.empiregame.gfx;
 
 public class Sprite
 {
+	private SpriteSheet sheet;
 	private final int SIZE;
 	private int x, y;
 	public int[] pixels;
-	private SpriteSheet sheet;
 	
-	public static Sprite grass = new Sprite(32, 3, 0, SpriteSheet.defaultTiles);
+	public static Sprite grass = new Sprite(1, 32, 3, 0, SpriteSheet.defaultTiles);
 	
-	public Sprite(int size, int x, int y, SpriteSheet sheet)
+	public Sprite(int id, int size, int x, int y, SpriteSheet sheet)
 	{
+		if (sheet==null) sheet = SpriteSheet.defaultTiles;
 		SIZE = size;
 		pixels = new int[SIZE * SIZE];
 		this.x = x * SIZE; // tile ID to pixel ID 

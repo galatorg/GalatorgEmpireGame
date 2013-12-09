@@ -145,7 +145,7 @@ public class Player extends Mob
 				yOffset -= 1;
 			}
 			screen.render(xOffset, yOffset, xTile + yTile * level.tilesSheet.tileSize, color, flipIt, scale, entitySheet); // render the player
-			screen.render(xOffset,  yOffset, 28 * level.tilesSheet.tileSize, waterColor, 0x00, 1, entitySheet);	 // render the water rings
+			screen.render(xOffset,  yOffset, 0, waterColor, 0x00, 1, entitySheet);	 // render the water rings
 		}
 		
 		if (username != null) // if there is a username set
