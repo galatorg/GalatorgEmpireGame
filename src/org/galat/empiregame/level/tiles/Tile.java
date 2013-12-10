@@ -9,9 +9,7 @@ import org.galat.empiregame.level.Level;
  * Tile, abstract class                                                      *
  *                                                                           *
  * Class template for various types of tiles to inherit.  For storing info   *
- * about the tiles that get rendered. TODO: Make a loadTiles() that can load *
- * new tile definitions over the defaults(boolean to retain the old and just *
- * overwrite certain ones or add new.  Also, set new tilesheet?              *
+ * about the tiles that get rendered.  Stores common data about tile types   *
  *                                                                           *
 \*****************************************************************************/
 

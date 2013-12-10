@@ -1,20 +1,15 @@
 package org.galat.empiregame.level;
 
-import java.awt.image.BufferedImage;
-import java.io.File;
-import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
-
-import javax.imageio.ImageIO;
 
 import org.galat.empiregame.entities.Entity;
 import org.galat.empiregame.entities.PlayerMP;
 import org.galat.empiregame.gfx.Screen;
 import org.galat.empiregame.gfx.SpriteSheet;
-import org.galat.empiregame.level.tiles.Tile;
 import org.galat.empiregame.level.tileset.Tileset;
 import org.galat.empiregame.level.tileset.DefaultTileset;
+import org.galat.empiregame.level.tilestates.Tilemap;
 
 /*****************************************************************************\
  *                                                                            *
@@ -27,14 +22,10 @@ import org.galat.empiregame.level.tileset.DefaultTileset;
 
 public class Level
 {
-	private short[] tiles; // array that stores the tileID of each tile in the level
-	public int width; // width of level in tiles
-	public int height; // height of level in tiles
 	public List<Entity> entities = new ArrayList<Entity>(); // list of players,mobs, etc. in the level.
-	private String imagePath; // path to the bitmap(png) that stores the tile info for the level
-	private BufferedImage image; // variable that stores the bitmap info from the file
 	public final SpriteSheet tilesSheet; // the sheet used to draw the ground tiles
-	private final Tileset levelTileset;
+	public final Tileset levelTileset; // holds the set of possible tiles, holds common info such as appearance
+	public final Tilemap levelTilemap; // holds the set of tiles in the level, holds state info pertaining to each tile in the level
 	
 	/*****************************************************************************\
 	*                                                                             *
@@ -53,114 +44,21 @@ public class Level
 		{
 			levelTileset = levelTiles;
 		}
-		else // use the default tileset instead
+		else // use the default tileset
 		{
-			levelTileset = new DefaultTileset();
+			levelTileset = new DefaultTileset(); // default Tileset to use
 		}
 
-		if (sheet != null)
+		if (sheet != null) // if there is a spritesheet that was passed in
 		{
 			tilesSheet = sheet;
 		}
-		else
+		else // use the default spritesheet
 		{
 			tilesSheet = SpriteSheet.defaultTiles; // default sheet
 		}		
 
-		if (imagePath != null) // if there was something passed in 
-		{
-			this.imagePath = imagePath; // store the path
-			this.loadLevelFromFile(); // load the level using the path that was passed in
-		}
-		else // a null value was passed into the constructor
-		{
-			this.width = 64; // default width of 64
-			this.height = 64; // default height of 64
-			tiles = new short[width * height]; // generate array to hold the IDs of all the tiles
-			this.generateLevel(); // call generateLevel to fill in default IDs in the tiles array
-		}
-	}
-	
-	// load the level data from the file at imagePath
-	private void loadLevelFromFile()
-	{
-		try // try, in case the file cannot be read from
-		{
-			this.image = ImageIO.read(Level.class.getResource(this.imagePath)); // read the file into the image variable
-			this.width = image.getWidth(); // get the width of the image and save the width in a variable
-			this.height = image.getHeight(); // get the height of the image and save the height in a variable
-			tiles = new short[width * height]; // create the array of the proper size to store the tile Ids of each tile in the level
-			this.loadTiles(); // call the function to load the tileId's into the tiles array from the image
-			
-		}
-		catch (IOException e) // failed to read from the file at imagePath
-		{
-			e.printStackTrace();
-		}
-	}
-	
-	// loads the tileId's into the tiles array based on the data stored in image
-	private void loadTiles()
-	{
-		int[] tileColors = this.image.getRGB(0, 0, width, height, null, 0, width); // get the RGB of each pixel in the image and store it in an int[]
-		for (int y = 0; y < height; y++) // for each row in the level
-		{
-			for (int x = 0; x < width; x++) // for each column in the level
-			{
-				for (int i = 0; i < levelTileset.getTilesetSize(); i++) // for each tile in the array of Id's
-				{
-					if (levelTileset.tiles[i] != null && levelTileset.tiles[i].getLevelColor() == tileColors[x + y * width]) // if there is a tile defined and the color matches that tile
-					{
-						this.tiles[x + y * width] = levelTileset.tiles[i].getId(); // store the tile id
-						break; // break the loop checking each tile type for this pixel in the level
-					}
-				}
-			} // check the next column
-		} // check the next row
-	}	
-	
-	// write out the current image representing the level to the file at imagePath
-	private void saveLevelToFile()
-	{
-		try
-		{
-			ImageIO.write(image,"png", new File(Level.class.getResource(this.imagePath).getFile()));
-		}
-		catch (IOException e)
-		{
-			e.printStackTrace();
-		}
-	}
-	
-	// function to change the tile to a new tile in the level
-	// x - x tile coordinate
-	// y - y tile coordinate
-	// newTile - Tile class instance to be put at that location
-	public void alterTile(int x, int y, Tile newTile)
-	{
-		this.tiles[x + y * width] = newTile.getId(); // set the tileId of the new tile in the tiles array
-		image.setRGB(x,  y,  newTile.getLevelColor()); // update the image(in memory) representing the level tiles
-		saveLevelToFile(); // update the file, temporary
-	}
-	
-	// TODO: upgrade to be better....create another that also does this with parameters.
-	// fills the tiles array with default IDs
-	public void generateLevel()
-	{
-		for (int y = 0; y < height; y++)
-		{
-			for (int x = 0; x < width; x++)
-			{
-					if (x * y % 10 < 7 )
-					{
-						tiles[x + y * width] = DefaultTileset.GRASS.getId();
-					}
-					else
-					{
-						tiles[x + y * width] = DefaultTileset.STONE.getId();
-					}
-			}
-		}
+		levelTilemap = new Tilemap(imagePath, levelTileset); // setup the level tile map based on the image and using the set of tiles in levelTileset
 	}
 
 	// returns the list of entities in the level
@@ -170,33 +68,25 @@ public class Level
 	}
 	
 	// update the entities and tiles in the level
-	// TODO: improve this eventually to update only the items that should be ?
 	public void tick()
-	{
+	{	
 		for (Entity e : getEntities()) // for each entity in the level
 		{
 			e.tick(); // call the tick function of the entity to update it
 		}
-		int i;
-		int j = tiles.length;
-		for (i = 0; i < j; i++) // for each tile in the level - TODO: update which tiles? 
-		{
-			if (levelTileset.tiles[tiles[i]] == null)
-			{
-				break; // skip this tile if it's null
-			}
-			levelTileset.tiles[tiles[i]].tick(); // call the tick function of the tile to update it
-		}
+		
+		levelTileset.tick(); // cycles the appearance on the tiles(animated tiles)
+		levelTilemap.tick(); // update the tiles in the level - TODO: limit to a certain range?
 	}
 	
 	// function to render the current tiles on the screen based on the xOffset and yOffset
 	public void renderTiles(Screen screen, int xOffset, int yOffset)
 	{
-		// these prevent (non)rendering outside the level
+		// these prevent (non)rendering outside the visible area
 		if(xOffset < 0) xOffset = 0; // xOffset cannot be negative, if so, set to 0
-		if(xOffset > ((width<<tilesSheet.bitsNeeded) - screen.width)) xOffset = ((width<<tilesSheet.bitsNeeded)-screen.width); // xOffset cannot go past the right edge of the level
+		if(xOffset > ((levelTilemap.width<<tilesSheet.bitsNeeded) - screen.width)) xOffset = ((levelTilemap.width<<tilesSheet.bitsNeeded)-screen.width); // xOffset cannot go past the right edge of the level
 		if(yOffset < 0) yOffset = 0; // yOffset cannot be negative, if so, set to 0
-		if(yOffset > ((height<<tilesSheet.bitsNeeded) - screen.height)) yOffset = ((height<<tilesSheet.bitsNeeded)-screen.height); // yOffset cannot go past the bottom edge of the level
+		if(yOffset > ((levelTilemap.height<<tilesSheet.bitsNeeded) - screen.height)) yOffset = ((levelTilemap.height<<tilesSheet.bitsNeeded)-screen.height); // yOffset cannot go past the bottom edge of the level
 		
 		screen.setOffset(xOffset, yOffset); // set the offsets after they have been checked
 		
@@ -204,7 +94,7 @@ public class Level
 		{
 			for (int x = (xOffset>>tilesSheet.bitsNeeded); x < ((xOffset + screen.width)>>tilesSheet.bitsNeeded)+1; x++) // render each column that's on the screen
 			{
-				getTile(x,y).render(screen, this, x<<tilesSheet.bitsNeeded, y<<tilesSheet.bitsNeeded); // get the current tile and tell it to render
+				levelTileset.tiles[getTileId(x,y)].render(screen, this, x<<tilesSheet.bitsNeeded, y<<tilesSheet.bitsNeeded); // get the current tile and tell it to render
 			}
 		}
  	}
@@ -218,11 +108,11 @@ public class Level
 		}
 	}
 	
-	// function to get the tile located at x,y(in tile coordinates)
-	public Tile getTile(int x, int y)
+	// function to get the id of the tile located at x,y(in tile coordinates)
+	public int getTileId(int x, int y)
 	{
-		if (0 > x || x >= width || 0 > y || y >= height) return DefaultTileset.VOID; // if the x or y value is out of bounds return a VOID tile
-		return levelTileset.tiles[tiles[x + y * width]];
+		if (0 > x || x >= levelTilemap.width || 0 > y || y >= levelTilemap.height) return 0; // if the x or y value is out of bounds return the first tile in the set
+		return levelTilemap.tiles[x][y].getId();
 	}
 
 	// add a new entity to the list of entities in the level
@@ -275,18 +165,5 @@ public class Level
 		player.setMovingDir(movingDir);
 		this.getEntities().get(index).x = x; // is this needed?
 		this.getEntities().get(index).y = y; // is this needed?
-	}
-
-	// print out a list of players in the level
-	// TODO: can probably just be removed
-	public void listPlayers()
-	{
-		for (Entity e : getEntities())
-		{
-			if (e instanceof PlayerMP)
-			{
-				System.out.println (((PlayerMP)e).getUsername());
-			}
-		}
 	}
 }

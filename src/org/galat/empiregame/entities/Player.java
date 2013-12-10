@@ -74,11 +74,11 @@ public class Player extends Mob
 			isMoving = false; // set the moving flag to false
 		}
 		
-		if (level.getTile(this.x>>level.tilesSheet.bitsNeeded, this.y>>level.tilesSheet.bitsNeeded).getId() == 3) // set the swimming flag if on a water tile
+		if (level.getTileId(this.x>>level.tilesSheet.bitsNeeded, this.y>>level.tilesSheet.bitsNeeded) == 3) // set the swimming flag if on a water tile
 		{
 			isSwimming = true;
 		}
-		if (isSwimming && level.getTile(this.x>>level.tilesSheet.bitsNeeded,  this.y>>level.tilesSheet.bitsNeeded).getId() != 3) // unset the swimming flag if not on a water tile
+		if (isSwimming && level.getTileId(this.x>>level.tilesSheet.bitsNeeded,  this.y>>level.tilesSheet.bitsNeeded) != 3) // unset the swimming flag if not on a water tile
 		{
 			isSwimming = false;
 		}
@@ -199,5 +199,4 @@ public class Player extends Mob
 		if (sheet==null) sheet = SpriteSheet.defaultPlayer;
 		entitySheet = sheet;
 	}
-
 }

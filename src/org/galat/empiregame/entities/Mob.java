@@ -65,8 +65,8 @@ public abstract class Mob extends Entity {
 			return false; // then there is nothing to check, default false(not solid)
 		}
 		
-		Tile lastTile = level.getTile(((this.x + x)>>level.tilesSheet.bitsNeeded), ((this.y +y)>>level.tilesSheet.bitsNeeded)); // the tile you are coming from
-		Tile newTile = level.getTile(((this.x + x + xa)>>level.tilesSheet.bitsNeeded), ((this.y + y + ya)>>level.tilesSheet.bitsNeeded)); // the tile you are going to
+		Tile lastTile = level.levelTileset.tiles[level.getTileId(((this.x + x)>>level.tilesSheet.bitsNeeded), ((this.y +y)>>level.tilesSheet.bitsNeeded))]; // the tile you are coming from
+		Tile newTile = level.levelTileset.tiles[level.getTileId(((this.x + x + xa)>>level.tilesSheet.bitsNeeded), ((this.y + y + ya)>>level.tilesSheet.bitsNeeded))]; // the tile you are going to
 		
 		if (!lastTile.equals(newTile) && newTile.isSolid()) // if the mob has not changed tiles and the tile you are moving to is solid
 		{
