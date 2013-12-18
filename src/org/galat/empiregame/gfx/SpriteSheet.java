@@ -5,6 +5,8 @@ import java.io.IOException;
 
 import javax.imageio.ImageIO;
 
+import org.galat.empiregame.gfx.Screen.colorStyle;
+
 /*****************************************************************************\
  *                                                                           *
  * SpriteSheet class                                                         *
@@ -23,12 +25,14 @@ public class SpriteSheet
 	public int[] pixels; // holds the image data
 	
 	// predefined spritesheets
-	public static SpriteSheet defaultTiles = new SpriteSheet("/spritesheets/default/defaultTiles.png", 32);
-	public static SpriteSheet defaultPlayer = new SpriteSheet("/spritesheets/default/defaultPlayer.png", 32);
-	public static SpriteSheet defaultFont = new SpriteSheet("/spritesheets/default/defaultFont.png", 32);
+	public static SpriteSheet defaultTiles = new SpriteSheet("/spritesheets/default/defaultTiles.png", 32, colorStyle.BASIC4);
+	public static SpriteSheet defaultPlayer = new SpriteSheet("/spritesheets/default/defaultPlayer.png", 32, colorStyle.BASIC4);
+	public static SpriteSheet defaultFont = new SpriteSheet("/spritesheets/default/defaultFont.png", 32, colorStyle.BASIC4);
+	public static SpriteSheet defaultColorTiles = new SpriteSheet("/spritesheets/default/defaultTiles.png", 32, colorStyle.DIRECTCOPY);
+	//public static SpriteSheet defaultGrassToDirt = new SpriteSheet("/spritesheets/default/transitionDirtGrass.png", 32, colorStyle.BASIC4);
 	
 	// constructor for a basic 4 color spritesheet (you can replace the 4 colors with whatever color you want)
-	public SpriteSheet(String path, int size)
+	public SpriteSheet(String path, int size, colorStyle colorMode)
 	{
 		BufferedImage image = null; // variable to read the image data into
 		
@@ -58,7 +62,6 @@ public class SpriteSheet
 		this.width = image.getWidth();
 		this.height = image.getHeight();
 		this.tilesOnX = this.width / this.tileSize; // calculate the number of tiles across
-		System.out.println(tilesOnX);
 		
 		int j=0;
 		int i=1;
@@ -71,9 +74,12 @@ public class SpriteSheet
 
 		pixels = image.getRGB(0, 0, width, height, null, 0, width); // turn the image into an int[] of 0xARGB
 
-		for (i = 0; i < pixels.length; i++) // process each pixel
+		if (colorMode == colorStyle.BASIC4)
 		{
-			pixels[i] = (pixels[i] & 0xff)/64; // cuts off the alpha channel and trims the blue channel down to 2 bits(4 colors in the spritesheet that can be used)
+			for (i = 0; i < pixels.length; i++) // process each pixel
+			{
+				pixels[i] = (pixels[i] & 0xff)/64; // cuts off the alpha channel and trims the blue channel down to 2 bits(4 colors in the spritesheet that can be used)
+			}
 		}
 	}
 }

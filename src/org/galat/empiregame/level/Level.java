@@ -94,7 +94,13 @@ public class Level
 		{
 			for (int x = (xOffset>>tilesSheet.bitsNeeded); x < ((xOffset + screen.width)>>tilesSheet.bitsNeeded)+1; x++) // render each column that's on the screen
 			{
-				levelTileset.tiles[getTileId(x,y)].render(screen, this, x<<tilesSheet.bitsNeeded, y<<tilesSheet.bitsNeeded); // get the current tile and tell it to render
+				int xOff=0, yOff=0;
+				if ((x < levelTilemap.width) && (y < levelTilemap.height))
+				{
+					xOff = levelTilemap.tiles[x][y].getXTileOffset();
+					yOff = levelTilemap.tiles[x][y].getYTileOffset();
+				}
+				levelTileset.tiles[getTileId(x,y)].render(screen, x<<tilesSheet.bitsNeeded, y<<tilesSheet.bitsNeeded, xOff, yOff); // get the current tile and tell it to render
 			}
 		}
  	}

@@ -3,8 +3,6 @@ package org.galat.empiregame;
 import java.awt.event.WindowEvent;
 import java.awt.event.WindowListener;
 
-import org.galat.empiregame.net.packet.Packet01Disconnect;
-
 /*****************************************************************************\
  *                                                                           *
  * WindowHandler class                                                       *
@@ -37,11 +35,13 @@ public class WindowHandler implements WindowListener
 	@Override
 	public void windowClosing(WindowEvent arg0)
 	{
+		/* TODO: multiplayer funtionality...
 		if (!game.isApplet)
 		{ 
 			Packet01Disconnect packet = new Packet01Disconnect(this.game.player.getUsername());
 			packet.writeData(this.game.socketClient);
 		}
+		*/
 	}
 
 	@Override

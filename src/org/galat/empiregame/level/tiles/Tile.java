@@ -1,8 +1,6 @@
 package org.galat.empiregame.level.tiles;
 
 import org.galat.empiregame.gfx.Screen;
-import org.galat.empiregame.gfx.SpriteSheet;
-import org.galat.empiregame.level.Level;
 
 /*****************************************************************************\
  *                                                                           *
@@ -15,17 +13,16 @@ import org.galat.empiregame.level.Level;
 
 public abstract class Tile
 {
-	public final SpriteSheet tileSheet;
 	protected short id; // stores the index of the instance of this Tile in the tiles Tile[] - short can allow up to 65536 different tile types if negative values used
 	protected boolean solid; // if the player can pass through the tile
 	protected boolean emitter; // unused? if block emits light?
 	private int levelColor; // color that represents it in the level bitmap
+	public boolean appearanceUpdates = false;
+	public int domTileId = 0; // used in transition tiles currently to determine the dominant tile
 	
 	// constructor
-	public Tile(int id, boolean isSolid, boolean isEmitter, int levelColor, SpriteSheet sheet) 
+	public Tile(int id, boolean isSolid, boolean isEmitter, int levelColor) 
 	{
-		if (sheet==null) sheet=SpriteSheet.defaultTiles;
-		tileSheet = sheet;
 		this.id = (short) id;
 		this.solid = isSolid;
 		this.emitter = isEmitter;
@@ -54,5 +51,6 @@ public abstract class Tile
 	
 	public abstract void tick();
 	
-	public abstract void render(Screen screen, Level level, int x, int y);
+	public abstract void render(Screen screen, int x, int y, int xOffset, int yOffset);
+
 }

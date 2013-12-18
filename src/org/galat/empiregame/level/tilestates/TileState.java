@@ -1,5 +1,7 @@
 package org.galat.empiregame.level.tilestates;
 
+import org.galat.empiregame.level.tiles.Tile;
+
 /*****************************************************************************\
  *                                                                            *
  * TileState class                                                            *
@@ -13,6 +15,7 @@ public class TileState
 {
 	private int tileId;  // id of the tile type in this tile
 	public TileState above, below, left, right; // to reference adjacent tiles
+	protected int xOffset = 0, yOffset = 0; // used in transition tiles currently to offset from the base tile
 
 	public TileState(int tileId)
 	{
@@ -32,5 +35,26 @@ public class TileState
 	public void tick()
 	{
 		
+	}
+	
+	public void setTile(Tile newTile)
+	{
+		this.tileId = newTile.getId();
+	}
+
+	public void setOffsets(int xOffset, int yOffset)
+	{
+		this.xOffset = xOffset;
+		this.yOffset = yOffset;
+	}
+	
+	public int getXTileOffset()
+	{
+		return xOffset;
+	}
+	
+	public int getYTileOffset()
+	{
+		return yOffset;
 	}
 }

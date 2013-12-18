@@ -1,13 +1,12 @@
 package org.galat.empiregame.entities;
 
-import org.galat.empiregame.Game;
 import org.galat.empiregame.InputHandler;
 import org.galat.empiregame.gfx.Colors;
 import org.galat.empiregame.gfx.Font;
 import org.galat.empiregame.gfx.Screen;
+import org.galat.empiregame.gfx.Screen.colorStyle;
 import org.galat.empiregame.gfx.SpriteSheet;
 import org.galat.empiregame.level.Level;
-import org.galat.empiregame.net.packet.Packet02Move;
 
 /*****************************************************************************\
  *                                                                           *
@@ -65,9 +64,10 @@ public class Player extends Mob
 		{
 			move(xa, ya); // call the function to move the player
 			isMoving = true;
-			
+			/* TODO: add multiplayer functionality later
 			Packet02Move packet = new Packet02Move(this.getUsername(), this.x, this.y, this.numSteps, this.isMoving, this.movingDir); // construct a move packet
 			packet.writeData(Game.game.socketClient); // send the packet to the server
+			*/
 		}
 		else // player did not move
 		{
@@ -118,7 +118,7 @@ public class Player extends Mob
 		
 		if (!isSwimming) // if not swimming
 		{
-			screen.render(xOffset, yOffset, xTile + yTile * level.tilesSheet.tileSize, color, flipIt, scale, entitySheet); // render the player
+			screen.render(xOffset, yOffset, xTile + yTile * level.tilesSheet.tileSize, color, colorStyle.BASIC4, flipIt, scale, entitySheet); // render the player
 		}
 		else // the player is swimming
 		{
@@ -144,8 +144,8 @@ public class Player extends Mob
 				waterColor = Colors.get(-1,  225, 115, -1);
 				yOffset -= 1;
 			}
-			screen.render(xOffset, yOffset, xTile + yTile * level.tilesSheet.tileSize, color, flipIt, scale, entitySheet); // render the player
-			screen.render(xOffset,  yOffset, 0, waterColor, 0x00, 1, entitySheet);	 // render the water rings
+			screen.render(xOffset, yOffset, xTile + yTile * level.tilesSheet.tileSize, color, colorStyle.BASIC4, flipIt, scale, entitySheet); // render the player
+			screen.render(xOffset,  yOffset, 0, waterColor, colorStyle.BASIC4, 0x00, 1, entitySheet);	 // render the water rings
 		}
 		
 		if (username != null) // if there is a username set
@@ -198,5 +198,10 @@ public class Player extends Mob
 	{
 		if (sheet==null) sheet = SpriteSheet.defaultPlayer;
 		entitySheet = sheet;
+	}
+	
+	public void setSpeed(int newSpeed)
+	{
+		speed = newSpeed;
 	}
 }

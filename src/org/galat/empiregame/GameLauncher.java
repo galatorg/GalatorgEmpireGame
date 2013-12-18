@@ -17,7 +17,6 @@ import javax.swing.JFrame;
 public class GameLauncher extends Applet
 {
 	public static Game game = new Game();
-	public static final boolean DEBUG = true; // turn debug mode on/off
 	
 	// initialize the game, for an applet
 	@Override
@@ -28,7 +27,6 @@ public class GameLauncher extends Applet
 		setMinimumSize(Game.DIMENSIONS);
 		setMaximumSize(Game.DIMENSIONS);
 		setPreferredSize(Game.DIMENSIONS);
-		game.debug = DEBUG;
 		game.isApplet = true;
 	}
 	
@@ -61,7 +59,6 @@ public class GameLauncher extends Applet
 		game.frame.setResizable(false);
 		game.frame.setLocationRelativeTo(null);
 		game.frame.setVisible(true);
-		game.debug = DEBUG;
 		
 		game.start();
 	}

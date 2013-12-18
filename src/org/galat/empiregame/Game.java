@@ -1,7 +1,9 @@
 package org.galat.empiregame;
 
 import java.awt.Canvas;
+import java.awt.Color;
 import java.awt.Dimension;
+import java.awt.Font;
 import java.awt.Graphics;
 import java.awt.image.BufferStrategy;
 import java.awt.image.BufferedImage;
@@ -12,11 +14,10 @@ import javax.swing.JFrame;
 import org.galat.empiregame.entities.Player;
 import org.galat.empiregame.entities.PlayerMP;
 import org.galat.empiregame.gfx.Screen;
+import org.galat.empiregame.gfx.Screen.colorStyle;
 import org.galat.empiregame.gfx.SpriteSheet;
 import org.galat.empiregame.level.Level;
-import org.galat.empiregame.net.GameClient;
-import org.galat.empiregame.net.GameServer;
-import org.galat.empiregame.net.packet.Packet00Login;
+
 
 /*****************************************************************************\
  *                                                                           *
@@ -46,17 +47,21 @@ public class Game extends Canvas implements Runnable
 	private BufferedImage image = new BufferedImage(WIDTH, HEIGHT, BufferedImage.TYPE_INT_RGB);
 	private int[] pixels = ((DataBufferInt) image.getRaster().getDataBuffer()).getData();
 	private int[] colors = new int[6*6*6];
+	private int fps;
 	
 	private Screen screen;
 	public InputHandler input;
+	public MouseHandler mouse;
 	public WindowHandler windowHandler;
 	public Level level;
 	public Player player;
 	
-	public GameClient socketClient;
-	public GameServer socketServer;
+	// TODO: multiplayer functionality
+	//public GameClient socketClient;
+	//public GameServer socketServer;
 	
-	public boolean debug = true;
+	Font debugFont = new Font("Dialog", Font.BOLD, 30); // font to use when printing the debug info
+	public boolean debug = false; // debug info off by default
 	public boolean isApplet = false;
 	
 	public Game() {	}
@@ -66,6 +71,8 @@ public class Game extends Canvas implements Runnable
 	{
 		game = this;
 		int index = 0;
+		
+		// initialize colors array to look up colors in 216 color mode (for BASIC4 and probably ENHANCED8)
 		for (int r = 0; r < 6; r++) // 6 levels of red
 		{
 			for (int g = 0; g < 6; g++) // 6 levels of green
@@ -83,12 +90,15 @@ public class Game extends Canvas implements Runnable
 		
 		screen = new Screen(WIDTH, HEIGHT);
 		input = new InputHandler(this);
+		mouse = new MouseHandler(this);
 		windowHandler = new WindowHandler(this);
 		level = new Level("/levels/water_level.png", SpriteSheet.defaultTiles, null);
 		//player = new PlayerMP(level, 32, 32, input, JOptionPane.showInputDialog(this, "Please enter a username"), null, -1);
 		player = new PlayerMP(level, 32, 32, input, "X", SpriteSheet.defaultPlayer, null, -1);
 		level.addEntity(player);
-		if (!isApplet)
+
+		// move server/client functionality...
+		/*		if (!isApplet)
 		{
 			Packet00Login loginPacket = new Packet00Login(player.getUsername(), player.x, player.y);
 			if (socketServer != null)
@@ -97,6 +107,7 @@ public class Game extends Canvas implements Runnable
 			}
 			loginPacket.writeData(socketClient);
 		}
+		*/
 	}
 	
 	// function to start the game
@@ -113,9 +124,9 @@ public class Game extends Canvas implements Runnable
 				socketServer = new GameServer(this);
 				socketServer.start();
 			}*/
-			
+			/*
 			socketClient = new GameClient(this, "localhost");
-			socketClient.start();
+			socketClient.start(); */
 		}
 	}
 	
@@ -139,7 +150,7 @@ public class Game extends Canvas implements Runnable
 		long lastTime = System.nanoTime();
 		double nsPerTick = 1000000000.0 / 60.0; // number of nanoseconds in a second divided by game ticks per second desired
 		
-		int ticks = 0; // tick counter
+		//int ticks = 0; // tick counter
 		int frames = 0; // frame counter
 
 		long lastTimer = System.currentTimeMillis();
@@ -157,7 +168,7 @@ public class Game extends Canvas implements Runnable
 			
 			while(delta >= 1) // while at least one tick has passed
 			{
-				ticks++; // increment tick counter
+				//ticks++; // increment tick counter
 				tick(); // call tick to process updates on everything
 				delta--; // decrement the number of ticks that needs to be processed
 				shouldRender = true; // if the game clock is running it should be rendered
@@ -181,9 +192,9 @@ public class Game extends Canvas implements Runnable
 			if (System.currentTimeMillis() - lastTimer >= 1000) // at least 1 second has passed
 			{
 				lastTimer += 1000; // move up a 1000 milliseconds to process this section again
-				if (debug) frame.setTitle("The Galatorg Empire | " + ticks + " ticks, " + frames + " FPS " + tickCount + " total ticks"); // update game title with tick and FPS info if in debug
+				fps = frames;
 				frames = 0; // reset the frames counter to keep track of FPS
-				ticks = 0; // ~60 ticks should have passed, reset the counter
+				//ticks = 0; // ~60 ticks should have passed, reset the counter
 			}
 		}
 	}
@@ -191,7 +202,7 @@ public class Game extends Canvas implements Runnable
 	// the game clock has ticked, perform updates on everything
 	public void tick()
 	{
-		tickCount++; // keeps track of the total gametime that has passed since it has started
+		tickCount++; // keeps track of the total game time that has passed since it has started
 		level.tick(); // tell everything in the level to update because the clock has ticked
 	}
 
@@ -215,17 +226,56 @@ public class Game extends Canvas implements Runnable
 		{
 			for (int x = 0; x < screen.width; x++) // for each pixel in the width
 			{
-				int colorCode = screen.pixels[x+(y*screen.width)];  // get the colorcode reference in our system for the current pixel
-				if (colorCode < 255) pixels[x + (y * WIDTH)] = colors[colorCode]; // get the 0xRGB value from the array and set the pixel to it
+				int index = x+(y*screen.width);
+				int colorCode = screen.pixels[index];  // get the colorcode reference in our system for the current pixel
+				colorStyle colorType = screen.colorType[index];
+				
+				if (colorType != null) // happens if a tile was indexed incorrectly in the tileset TODO: get this removed?
+				{
+					switch (colorType)
+					{
+					case BASIC4:
+						if (colorCode < 255) pixels[x + (y * WIDTH)] = colors[colorCode]; // get the 0xRGB value from the array and set the pixel to it
+						break;
+					case BASIC8:
+						break;
+					case DIRECTCOPY:
+						if (colorCode != 0xffff00ff) pixels[x + (y * WIDTH)] = colorCode;
+						break;
+					}
+				}
 			}
 		}
 		
 		Graphics g = bs.getDrawGraphics(); // get the canvas to draw on
 		g.drawImage(image, 0, 0, getWidth(), getHeight(), null); // draw the now updated pixels array in the game area
+		
+		if (debug)
+		{	
+			g.setFont(debugFont);
+			g.setColor(Color.WHITE);
+			g.drawString("X: " + player.x + "   Y: " + player.y + "   Xt: " + (player.x>>5) + "   Yt: " + (player.y>>5), 32, 32);
+			g.drawString(fps + " FPS " + tickCount + " total ticks", 32, 64);
+		}
+		
 		g.dispose();
 		bs.show(); // display the current image in the buffer
 	}
 	
+	// toggles the debug variable on and off
+	public void toggleDebug()
+	{
+		if (debug)
+		{
+			debug = false;
+		}
+		else
+		{
+			debug = true;
+		}
+	}
+	
+	/* remove/replace?  other info onscreen with F3
 	// function to print out debug messages to the console when debug is on
 	public void debug(DebugLevel level, String msg)
 	{
@@ -252,7 +302,7 @@ public class Game extends Canvas implements Runnable
 			this.stop();
 			break;
 		}
-	}
+	} */
 	
 	// debug enumeration for levels of severity
 	public static enum DebugLevel

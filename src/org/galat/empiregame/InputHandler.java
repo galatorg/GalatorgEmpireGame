@@ -11,11 +11,14 @@ import java.awt.event.KeyListener;
  *                                                                           *
 \*****************************************************************************/
 
-public class InputHandler implements KeyListener{
-
+public class InputHandler implements KeyListener
+{
+	private Game gameRef;
+	
 	public InputHandler(Game game)
 	{
 		game.addKeyListener(this);
+		gameRef = game;
 	}
 	
 	// internal class used to define keys and retain whether they are pressed or not
@@ -41,12 +44,33 @@ public class InputHandler implements KeyListener{
 	
 	public void keyPressed(KeyEvent e)
 	{
-		toggleKey(e.getKeyCode(), true);
+		int keyCode = e.getKeyCode();
+		if (keyCode == KeyEvent.VK_F3)
+		{
+			gameRef.toggleDebug();
+		}
+		else if (keyCode == KeyEvent.VK_SHIFT)
+		{
+			gameRef.player.setSpeed(4);
+		}
+		else
+		{	
+			toggleKey(keyCode, true);
+		}
 	}
 
 	public void keyReleased(KeyEvent e)
 	{
-		toggleKey(e.getKeyCode(), false);		
+		int keyCode = e.getKeyCode();
+
+		if (keyCode == KeyEvent.VK_SHIFT)
+		{
+			gameRef.player.setSpeed(1);
+		}
+		else
+		{	
+			toggleKey(keyCode, false);
+		}
 	}
 
 	public void keyTyped(KeyEvent e) { }
