@@ -13,6 +13,7 @@ import javax.swing.JFrame;
 
 import org.galat.empiregame.entities.Player;
 import org.galat.empiregame.entities.PlayerMP;
+import org.galat.empiregame.gfx.HeadsUpDisplay;
 import org.galat.empiregame.gfx.Screen;
 import org.galat.empiregame.gfx.Screen.colorStyle;
 import org.galat.empiregame.gfx.SpriteSheet;
@@ -55,6 +56,8 @@ public class Game extends Canvas implements Runnable
 	public WindowHandler windowHandler;
 	public Level level;
 	public Player player;
+	public HeadsUpDisplay hud;
+	public int activeSlot = 0; // keeps track of which item slot it active
 	
 	// TODO: multiplayer functionality
 	//public GameClient socketClient;
@@ -89,12 +92,13 @@ public class Game extends Canvas implements Runnable
 		}
 		
 		screen = new Screen(WIDTH, HEIGHT);
+		hud = new HeadsUpDisplay(WIDTH, HEIGHT, SpriteSheet.defaultHUD, this);
 		input = new InputHandler(this);
 		mouse = new MouseHandler(this);
 		windowHandler = new WindowHandler(this);
 		level = new Level("/levels/water_level.png", SpriteSheet.defaultTiles, null);
 		//player = new PlayerMP(level, 32, 32, input, JOptionPane.showInputDialog(this, "Please enter a username"), null, -1);
-		player = new PlayerMP(level, 32, 32, input, "X", SpriteSheet.defaultPlayer, null, -1);
+		player = new PlayerMP(level, 120, 120, input, "X", SpriteSheet.defaultPlayer, null, -1);
 		level.addEntity(player);
 
 		// move server/client functionality...
@@ -247,6 +251,8 @@ public class Game extends Canvas implements Runnable
 			}
 		}
 		
+		hud.render(pixels); // draw the hud onto the pixels array - hud isn't scaled
+		
 		Graphics g = bs.getDrawGraphics(); // get the canvas to draw on
 		g.drawImage(image, 0, 0, getWidth(), getHeight(), null); // draw the now updated pixels array in the game area
 		
@@ -254,8 +260,8 @@ public class Game extends Canvas implements Runnable
 		{	
 			g.setFont(debugFont);
 			g.setColor(Color.WHITE);
-			g.drawString("X: " + player.x + "   Y: " + player.y + "   Xt: " + (player.x>>5) + "   Yt: " + (player.y>>5), 32, 32);
-			g.drawString(fps + " FPS " + tickCount + " total ticks", 32, 64);
+			g.drawString("X: " + player.x + "   Y: " + player.y + "   Xt: " + (player.x>>5) + "   Yt: " + (player.y>>5), 60, 120);
+			g.drawString(fps + " FPS " + tickCount + " total ticks", 60, 152);
 		}
 		
 		g.dispose();

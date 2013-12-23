@@ -29,9 +29,10 @@ public class SpriteSheet
 	public static SpriteSheet defaultPlayer = new SpriteSheet("/spritesheets/default/defaultPlayer.png", 32, colorStyle.BASIC4);
 	public static SpriteSheet defaultFont = new SpriteSheet("/spritesheets/default/defaultFont.png", 32, colorStyle.BASIC4);
 	public static SpriteSheet defaultColorTiles = new SpriteSheet("/spritesheets/default/defaultTiles.png", 32, colorStyle.DIRECTCOPY);
+	public static SpriteSheet defaultHUD = new SpriteSheet("/spritesheets/default/defaultHUD.png", 32, colorStyle.DIRECTCOPY);
 	//public static SpriteSheet defaultGrassToDirt = new SpriteSheet("/spritesheets/default/transitionDirtGrass.png", 32, colorStyle.BASIC4);
 	
-	// constructor for a basic 4 color spritesheet (you can replace the 4 colors with whatever color you want)
+	// constructor for a spritesheet (you can replace the 4 colors with whatever color you want)
 	public SpriteSheet(String path, int size, colorStyle colorMode)
 	{
 		BufferedImage image = null; // variable to read the image data into
